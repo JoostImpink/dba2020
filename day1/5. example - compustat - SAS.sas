@@ -121,20 +121,28 @@ rsubmit;
 	*/
 	/* requires sorting by gvkey fyear */
 	proc sort data=e_ret ; by gvkey fyear; run;
+
+/* assignment will be something like: SICH is often missing for companies (about 20%) of the time */
+/* you can either throw these away (if you need industry) */
+	/* use SICH code from an earlier year; so if SICH for some company is missing in 2010, 2011, and 2012
+	but it is there in 2009, then you can assume it didn't change */
+	/* forward-fill that missing SICH (by gvkey) */
+
 rsubmit;
-	data f_ret_alt;
-	set f_ret;
+data f_ret_alt;
+	set e_ret;
 	retain ret_alt;
 	by gvkey fyear;
 	/* start with 1 if it is the first observation for a year */
 	if first.fyear then ret_alt = 1;
 	/* compound the return */
 	ret_alt = ret_alt * ( 1 + ret);
+
 	if last.fyear then ret_alt = ret_alt - 1; /* subtract 1 */
 	/* when you remove the line below, you will get 12 records for each year */
-	if last.fyear then output;
+	if last.fyear then output; 
 	run;
-
+endrsubmit;
 	/*	Append return to our dataset with Compustat variables 
 		This is a typical workflow: upload some dataset, construct some variables,
 		and then append the newly created variables onto the uploaded dataset.
@@ -164,8 +172,28 @@ set f_sample2;
 if missing(ret) eq 0;
 run;
 
+
 /* observations by year */
-/* .. */
+
+/* proc means */
+
+/* summary statistics for full sample */
+proc means data=work.g_sample n mean  median stddev ;
+  OUTPUT OUT=work.h_count_alt n= /*mean= median= stddev= */ /autoname;
+  var ret ;
+run;
+
+
+/* proc freq -- personally I don't use this */
+
+
+/* proc sql */
+	proc sql;
+		create table h_count as 
+			select fyear, count(*) as numObs from g_sample group by fyear;	
+	quit;
+	
+
 
 /* observations by 2-digit SIC */
 /* .. */
