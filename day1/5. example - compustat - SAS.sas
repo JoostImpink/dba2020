@@ -80,7 +80,7 @@ rsubmit;
 	    This is very boilerplate-like, the relevant thing is that this match gives
 	    the correct permno at date 'boy' (in this case) for a given gvkey */      	
 	proc sql;
-	    	create table c_ranked as
+	    	create table d_withpermno as
 	    	select a.* , b.lpermno as permno
 	    	from c_ranked a
 	    	left join
@@ -94,9 +94,9 @@ rsubmit;
 
 	/*    Get stock return */
 	proc sql;
-	    create table d_ret (keep = gvkey fyear permno boy datadate date ret) as
+	    create table e_ret (keep = gvkey fyear permno boy datadate date ret) as
 	    select a.*, b.date, b.ret
-	    from   c_ranked a, crsp.msf b
+	    from   d_withpermno a, crsp.msf b
 	    where a.boy <= b.date <= a.datadate
 	    and a.permno = b.permno
 	    and missing(b.ret) ne 1;
@@ -105,12 +105,35 @@ rsubmit;
 	/*    Compute compound return  -- yes, the exp(sum(log(1+ret))) is very compact!
 	        Thanks to Lin, one of our graduated finance PhD students! */
 	proc sql;
-	        create table e_ret as
+	        create table f_ret as
 	        select gvkey, fyear, exp(sum(log(1+ret)))-1 as ret
-	        from d_ret
+	        from e_ret
 	        /* compound for each firm year */
 	        group by gvkey, fyear;
 	quit;
+
+	/* alternative to the above, using 'retain'
+		Retain allows you to 'remember' something in a data step
+		from one record to the next
+		'.first' and '.last' can detect a new firm-year (when using by gvkey fyear) 
+		retain a sum of compounded returns
+		output will trigger a record
+	*/
+	/* requires sorting by gvkey fyear */
+	proc sort data=e_ret ; by gvkey fyear; run;
+rsubmit;
+	data f_ret_alt;
+	set f_ret;
+	retain ret_alt;
+	by gvkey fyear;
+	/* start with 1 if it is the first observation for a year */
+	if first.fyear then ret_alt = 1;
+	/* compound the return */
+	ret_alt = ret_alt * ( 1 + ret);
+	if last.fyear then ret_alt = ret_alt - 1; /* subtract 1 */
+	/* when you remove the line below, you will get 12 records for each year */
+	if last.fyear then output;
+	run;
 
 	/*	Append return to our dataset with Compustat variables 
 		This is a typical workflow: upload some dataset, construct some variables,
@@ -120,19 +143,24 @@ rsubmit;
 	*/
 	proc sql; 
 		create table f_sample as select a.*, b.ret 
-		from c_ranked a left join e_ret b 
+		from d_withpermno a left join f_ret b 
 		on a.gvkey = b.gvkey and a.fyear = b.fyear;
 	quit;
-
+	/* append ret_alt */
+	proc sql; 
+		create table f_sample2 as select a.*, b.ret_alt
+		from f_sample a left join f_ret_alt b 
+		on a.gvkey = b.gvkey and a.fyear = b.fyear;
+	quit;
 	/*	Download to local work library */  
-	proc download data=f_sample out=f_sample;run;
+	proc download data=f_sample2 out=f_sample2;run;
  			
 endrsubmit;
 
 /* f_sample may have missing returns? why? */
 
 data g_sample;
-set f_sample;
+set f_sample2;
 if missing(ret) eq 0;
 run;
 
