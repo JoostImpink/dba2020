@@ -27,7 +27,13 @@ tab fyear
 tab sic2
 
 // descriptive statistics
-tabstat ret roa mcap mtb growth , stats (n mean min p10 p25 p50 p75 p90 max) col(stat) 
+// descriptive statistics
+tabstat ret roa mcap mtb growth , stats (n mean min p10 p25 p50 p75 p90 max sd) col(stat)
+
+// exporting descriptive statistics
+estpost tabstat ret roa mcap mtb growth , stats (n mean min p10 p25 p50 p75 p90 max sd) col(stat) 
+// export: make sure path/folder exists
+esttab . using C:\git\dba2020\day1\sample_descriptives.csv ,  replace cells(" min p50 mean max sd ")
 
 // correlation table
 pwcorr ret roa mcap mtb growth 
