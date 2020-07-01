@@ -156,6 +156,21 @@ options mprint mfile;
 
 %myThird(dsin=myData, dsout=myData2, datevar=date1);
 
+/* conditions */
+%macro myMacro(happy=);
+%if &happy=yes %then %do;
+%put Today is a happy day;
+%end;
+%else %do;
+%put Not so happy;
+%end;
+%mend;
+
+%myMacro(happy=yes);
+
+/* conditions, see example 1: https://v8doc.sas.com/sashtml/macro/z0543542.htm */
+
+
 /* Include statement */
 
 /* Include the macro file `example_macro.sas` in the `data_management\macros` folder
