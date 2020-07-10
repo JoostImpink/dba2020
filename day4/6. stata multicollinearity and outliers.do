@@ -1,5 +1,5 @@
 // load the dataset
-use "http://www.wrds.us/sample_dataset.dta"
+use "http://www.wrds.us/sample_dataset.dta", clear
 
 // make time-series
 destring  gvkey, replace
