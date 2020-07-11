@@ -1,9 +1,3 @@
-// load dataset either from disk, or from url
-
-// load dataset from disk (make sure path is correct)
-use "M:\dataset_resid2_day1.dta", clear
-use "E:\teaching\dba\2019\residency 2 - day 1\datasets\dataset_resid2_day1.dta", clear
-
 // load dataset from url
 use http://www.wrds.us/dataset_resid2_day1.dta , clear
 
