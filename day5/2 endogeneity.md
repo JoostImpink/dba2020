@@ -31,7 +31,7 @@ Model:
 
 `Y = b0 + b1 X + e`
 
-Where Y is the stock return around the earnings announcement (1 or 2 day return), and X is the earnings surprise (reported EPS - analyst forecast EPS, typically scaled by stock price). The coefficient b is the ERC estimate.
+Where Y is the stock return around the earnings announcement (1 or 2 day return), and X is the earnings surprise (reported EPS - analyst forecast EPS, typically scaled by stock price). The coefficient b1 is the ERC estimate.
 
 The ERC is an often used measure as it reflects a dimension of reporting quality. (If quality is higher, then reported earnings influence stock prices more.)
 
@@ -65,7 +65,7 @@ Say you work at Designer Shoe Warehouse and you want to evaluate the profitabili
 
 Where Y is customer sales over some period, and Coupon is 1 if the customer received a coupon.
 
-This regression can be estimated without issues when coupons are sent out randomly. But, what if coupons are sent out based on past customer orders? Then it is no longer random (sales => coupon => more sales => another coupon etc). Example comes from [here](Introduction to Endogeneity - Towards Data Science.pdf)
+This regression can be estimated without issues when coupons are sent out randomly. But, what if coupons are sent out based on past customer orders? Then it is no longer random (sales => coupon => more sales => another coupon etc). Example comes from [https://towardsdatascience.com/endogeneity-the-reason-why-we-should-know-about-data-part-i-80ec33df66ae](https://towardsdatascience.com/endogeneity-the-reason-why-we-should-know-about-data-part-i-80ec33df66ae).
 
 
 ## Selection bias (self-selection)
@@ -105,7 +105,7 @@ Interesting read: https://medium.com/teconomics-blog/machine-learning-meets-inst
 
 ### Instumental variables using Stata
 
-Stata has a command [rivregress] (https://www.stata.com/manuals/rivregress.pdf)
+Stata has a command [rivregress](https://www.stata.com/manuals/rivregress.pdf)
 
 2SLS estimation of a linear regression of y1 on x1 and endogenous regressor y2 that is instrumented
 by z1:
@@ -146,4 +146,4 @@ regress y1 y2hat x1
 
 ### Heckman test
 
-See [further reading - Heckman selection](further reading - Heckman selection.md)
+See [further reading - Heckman selection](further reading - Heckman selection)
